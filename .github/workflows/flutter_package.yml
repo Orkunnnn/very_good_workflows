@@ -3,6 +3,9 @@ name: Flutter Package Workflow
 on:
   workflow_call:
     inputs:
+      token:
+        required: true
+        type: number
       concurrency:
         required: false
         type: number
@@ -67,6 +70,8 @@ jobs:
       - name: 📦 Install Dependencies
         run: |
           flutter pub global activate very_good_cli
+          dart pub global activate melos
+          dart pub global activate coverde
           very_good --analytics false
           very_good packages get --recursive
 
@@ -81,11 +86,15 @@ jobs:
         run: flutter analyze lib test
 
       - name: 🧪 Run Tests
-        run: very_good test -j ${{inputs.concurrency}} ${{(inputs.test_recursion && '--recursive') || ''}} ${{(inputs.test_optimization && '--optimization') || '--no-optimization'}} --coverage --test-randomize-ordering-seed random
+        run: melos setup
 
       - name: 📊 Check Code Coverage
         uses: VeryGoodOpenSource/very_good_coverage@v2
         with:
-          path: ${{inputs.working_directory}}/coverage/lcov.info
+          path: ${{inputs.working_directory}}/coverage/filtered.lcov.info
           exclude: ${{inputs.coverage_excludes}}
           min_coverage: ${{inputs.min_coverage}}
+      - name: 🚀 Upload to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ inputs.token }}
