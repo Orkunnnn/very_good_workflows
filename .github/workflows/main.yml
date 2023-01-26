@@ -3,9 +3,6 @@ name: Flutter Package Workflow
 on:
   workflow_call:
     inputs:
-      token:
-        required: true
-        type: number
       concurrency:
         required: false
         type: number
@@ -96,5 +93,3 @@ jobs:
           min_coverage: ${{inputs.min_coverage}}
       - name: 🚀 Upload to Codecov
         uses: codecov/codecov-action@v3
-        with:
-          token: ${{inputs.token}}
